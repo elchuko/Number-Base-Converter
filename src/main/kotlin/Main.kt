@@ -39,7 +39,6 @@ fun converterFromSourceToTarget(sourceBase: String, targetBase: String, number: 
     val TEN = "10"
     val indexRange = 0..4
 
-
     if (targetBase == TEN) {
         if (containsDot(number)) {
             val resultArray = toDecimal(sourceBase, number).split('.').map() { it }.toMutableList()
@@ -78,11 +77,7 @@ fun fractFromDecimalTo(targetBase: BigDecimal, numberPassed: String): String {
         fractionalPart = number.remainder( BigDecimal.ONE )
         if (fractionalPart.compareTo(BigDecimal.ZERO) != 0) {
             number = fractionalPart * targetBase
-            result += if (number.toInt() in 10..35) {
-                (number.toInt() + eightySeven).toChar()
-            } else {
-                number.toInt().toString()
-            }
+            result += convertFromNumberToCharBD(number)
         } else {
             result += zero
         }
@@ -104,7 +99,7 @@ fun intFromDecimalTo(targetBase: BigInteger, numberPassed: String):String {
         }
         else -> {
             while (number != BigInteger.ZERO) {
-                result += convertFromNumberToCharBI(number)
+                result += convertFromNumberToCharBI(number, targetBase)
                 number /= targetBase
             }
         }
@@ -121,7 +116,6 @@ fun toDecimal(sourceBase: String, number: String): String {
 }
 
 fun fracToDecimal(sourceBase: String, number: String): BigDecimal {
-    val eightySeven = 87
     val twenty = 20
     val five = 5
     val fractNumber = getFract(number)
@@ -185,18 +179,28 @@ fun convertFromCharToNumberBI(letter: Char): BigInteger {
 fun convertFromCharToNumberBF(letter: Char): BigDecimal {
     val eightySeven = 87
 
-    if(letter.isDigit()) {
+    return if(letter.isDigit()) {
         BigDecimal(letter.toString())
     } else {
         (letter.code - eightySeven).toBigDecimal()
     }
 }
 
-fun convertFromNumberToCharBI(number: BigInteger): String {
+fun convertFromNumberToCharBI(number: BigInteger, targetBase: BigInteger): String {
     return if (number % targetBase >= BigInteger.valueOf(10) && number % targetBase <= BigInteger.valueOf(35)) {
-        ((number % targetBase) + BigInteger.valueOf(87)).toInt().toChar()
+        ((number % targetBase) + BigInteger.valueOf(87)).toInt().toString()
     } else  {
         "${number % targetBase}"
+    }
+}
+
+fun convertFromNumberToCharBD(number: BigDecimal): String {
+    val eightySeven = 87
+
+    return if (number.toInt() in 10..35) {
+        (number.toInt() + eightySeven).toChar().toString()
+    } else {
+        number.toInt().toString()
     }
 }
 
